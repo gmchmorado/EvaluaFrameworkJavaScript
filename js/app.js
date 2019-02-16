@@ -1,10 +1,12 @@
 
 //--> Definición de variables globales
 var elementos;
+var defineX;
+var xFinal = "";
 
 //--> Función para designar el 'objeto' aleatorio
 function agrega(){
-  var selector = (Math.floor(Math.random()*3) + 1).toString();
+  var selector = (Math.floor(Math.random()*4) + 1).toString();
   var seleccion = "image/" + selector + ".png";
   return seleccion;
 };
@@ -20,15 +22,37 @@ function generaTablero(){
   }
 };
 
+//--> Función de animación de caída de 'objeto'
+function caer(objDulce/*,orden*/){
+  defineX = 680;//-(96*(orden)); para el inicial no se requiere por ello se comenta.
+  xFinal = "+=" + defineX.toString() + "px";
+  $(objDulce).animate({top:xFinal},"slow");
+};
+
 //--> Función para presentar los elementos del tablero
 function presentaTablero(){
+  var classCol = "";
+  var imgDulce = "";
+  var selDulce = "";
   for (var i = 0; i < 7; i++){
-    posCol = '.col-' + (i+1).toString();
+    classCol = '.col-' + (i+1).toString();
     for (var j = 0; j < 7; j++){
-      $('<img src="' + elementos[i][j] + '" class="elemento"/>').appendTo(posCol);
+      imgDulce = '<img src="' + elementos[i][j] + '" class="elemento"/>';
+      $(imgDulce).prependTo(classCol);
+      selDulce = "div" + classCol + " > img:nth-child(1)";
+      caer(selDulce);
     }
   }
 };
+
+function evaluar(){
+
+};
+/*
+recorrer la matriz columna/renglon, revisando las coincidencias de renglon (a la derecha) columna (hacia abajo), si hay una primera coincidencia, continúa la evaluación, continuará evaluando hasta que termine o deje de existir coincidencias. Marcará el número de coincidencias si es mayor de tres (2 coincidencias) agregará las posiciones a una variable (array?).
+Una vez revisadotodo el tablero, procederá con la "remosión" de los elementos HTML; la caida de los elementos se genera cuando son eliminados; se agregarán los "nuevos" con el apoyo de lo almacenado en la variable (array?)
+!!!Se puede realizar una nueva evaluación ¿Se deberá hacer?  
+*/
 
 /*
 LÓGICA DEL PROCESO

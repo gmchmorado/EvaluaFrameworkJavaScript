@@ -102,5 +102,6 @@ div[class^='col']{
 .elemento{
   width: 99.4px;
   height: 96px;
-
+  position: relative; /*agregado para movimiento*/
+  top: -680px; /*agregado para movimiento*/
 }
