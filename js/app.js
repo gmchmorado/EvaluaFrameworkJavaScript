@@ -1,25 +1,36 @@
 
 //--> Definición de variables globales
-var elementos;
-var defineX;
-var xFinal = "";
-var objCoinciden = [];
-var aryCoincideSin = [];
-var cntElementos = 0;
+let elementos;
+let defineX;
+let xFinal = "";
+let objCoinciden = [];
+let aryCoincideSin = [];
+let cntElementos = 0;
+let verElemento = "";
+let conservaElemento = "";
+let cntConcidencias = 0;
+let i = 0;
+let j = 0;
+let objDestino = "";
+let strSelector = "";
+let classCol = "";
+let imgDulce = "";
+let selDulce = "";
+let repetir = true;
 
 //--> Función para designar el 'objeto' aleatorio
 function agrega(){
-  var selector = (Math.floor(Math.random()*4) + 1).toString();
-  var seleccion = "image/" + selector + ".png";
+  let selector = (Math.floor(Math.random()*4) + 1).toString();
+  let seleccion = "image/" + selector + ".png";
   return seleccion;
 };
 
 //--> Función para generar datos del tablero
 function generaTablero(){
   elementos = new Array(6);
-  for (var i = 0; i < 7; i++){
+  for (i = 0; i < 7; i++){
     elementos[i] = new Array(6);
-    for (var j = 0; j < 7; j++){
+    for (j = 0; j < 7; j++){
       elementos[i][j] = agrega();
     }
   }
@@ -38,12 +49,12 @@ function caer(objDulce/*,orden*/){
 
 //--> Función para presentar los elementos del tablero
 function presentaTablero(){
-  var classCol = "";
-  var imgDulce = "";
-  var selDulce = "";
-  for (var i = 0; i < 7; i++){
+  classCol = "";
+  imgDulce = "";
+  selDulce = "";
+  for (i = 0; i < 7; i++){
     classCol = '.col-' + (i+1).toString();
-    for (var j = 0; j < 7; j++){
+    for (j = 0; j < 7; j++){
       imgDulce = '<img src="' + elementos[i][j] + '" class="elemento"/>';
       $(imgDulce).prependTo(classCol);
       selDulce = "div" + classCol + " > img:nth-child(1)";
@@ -52,155 +63,150 @@ function presentaTablero(){
   }
 };
 
-function evaluar(){
-  var verElemento = "";
-  var conservaElemento = "";
-  var cntConcidencias = 0;
-  var i = 0;
-  var j = 0;
+function verificar(){
+  verElemento = "";
+  conservaElemento = "";
+  cntConcidencias = 0;
+  i = 0;
+  j = 0;
+  /*
+  =====================================
+  Evalua los elementos para encontrar los que cumplen con la condición.
+  =====================================
+  */
   //recorrido por columnas
-  //setTimeout(function(){
-    for (i = 0; i < 7; i++){
-      for (j = 0; j < 7; j++){
-        verElemento = elementos[i][j];
-        if (conservaElemento == verElemento){
-          cntConcidencias += 1;
-          if (cntConcidencias == 2){
-            objCoinciden.push(i.toString()+(j-cntConcidencias).toString(),i.toString()+(j-cntConcidencias+1).toString(),i.toString()+j.toString())
-          }else if (cntConcidencias > 2){
-            objCoinciden.push(i.toString()+j.toString())
-          }
-        }else {
-          cntConcidencias = 0;
-        }
-        conservaElemento = verElemento;
-      }
-      conservaElemento = "";
-    }
-    //recorrido por filas
+  for (i = 0; i < 7; i++){
     for (j = 0; j < 7; j++){
-      for (i = 0; i < 7; i++){
-        verElemento = elementos[i][j];
-        if (conservaElemento == verElemento){
-          cntConcidencias += 1;
-          if (cntConcidencias == 2){
-            objCoinciden.push((i-cntConcidencias).toString()+j.toString(),(i-cntConcidencias+1).toString()+j.toString(),i.toString()+j.toString());
-          }else if (cntConcidencias > 2){
-            objCoinciden.push(i.toString()+j.toString());
-          }
-        }else {
-          cntConcidencias = 0;
+      verElemento = elementos[i][j];
+      if (conservaElemento == verElemento){
+        cntConcidencias += 1;
+        if (cntConcidencias == 2){
+          objCoinciden.push(i.toString()+(j-cntConcidencias).toString(),i.toString()+(j-cntConcidencias+1).toString(),i.toString()+j.toString())
+        }else if (cntConcidencias > 2){
+          objCoinciden.push(i.toString()+j.toString())
+        };
+      }else {
+        cntConcidencias = 0;
+      };
+      conservaElemento = verElemento;
+    };
+    conservaElemento = "";
+  };
+  //recorrido por filas
+  for (j = 0; j < 7; j++){
+    for (i = 0; i < 7; i++){
+      verElemento = elementos[i][j];
+      if (conservaElemento == verElemento){
+        cntConcidencias += 1;
+        if (cntConcidencias == 2){
+          objCoinciden.push((i-cntConcidencias).toString()+j.toString(),(i-cntConcidencias+1).toString()+j.toString(),i.toString()+j.toString());
+        }else if (cntConcidencias > 2){
+          objCoinciden.push(i.toString()+j.toString());
+        };
+      }else {
+        cntConcidencias = 0;
+      };
+      conservaElemento = verElemento;
+    };
+    conservaElemento = "";
+  };
+  /*
+  =====================================
+  Selecciona los elementos y separa sus coordenadas en una matríz, les aplica el efecto de pulsar a aquellas que cumplen la condición.
+  Se hace el retiro de los elementos tanto en HTML como en la matríz para conservar la integridad.
+  =====================================
+  */
+  objDestino = "";
+  strSelector = "";
+  if (objCoinciden.length > 0){
+    //retira duplicados y ordena descendente
+    objCoinciden.sort();
+    objCoinciden.reverse();
+    aryCoincideSin = objCoinciden.unique();
+    for (let k = 0; k < aryCoincideSin.length; k++ ){
+      strSelector = aryCoincideSin.slice(k,(k+1)).toString();
+      i = parseInt(strSelector.slice(0,1));
+      j = parseInt(strSelector.slice(1));
+      elementos[i].splice(j,1);
+      objDestino = 'div.col-' + (i+1).toString() + ' > img:nth-last-child(' + (j+1).toString() +')';
+      $(objDestino).effect({
+        effect:"pulsate",
+        duration:2000,
+        complete:function(){
+          $(this).detach()
+          /*
+          =====================================
+          Se recorre la matríz de elementos y en caso de encontrar elementos "no definidos" vuelve a agregarlos en el HTML y en la propia matríz
+          =====================================
+          */
+          if (contarElementos(elementos) != 49){
+            classCol = "";
+            imgDulce = "";
+            selDulce = "";
+            //var h = 0;
+            for (i = 0; i < 7; i++){
+              for (j = 0; j < 7; j++){
+                if (elementos[i].length <= 7){
+                  if (typeof elementos[i][j] === "undefined"){
+                    elementos[i][j] = agrega();
+                    classCol = '.col-' + (i+1).toString();
+                    imgDulce = '<img src="' + elementos[i][j] + '" class="elemento"/>';
+                    $(imgDulce).prependTo(classCol);
+                    selDulce = "div" + classCol + " > img:nth-child(1)";
+                    caer(selDulce);
+                  };
+                };
+              };
+            };
+          };
+          cntElementos = contarElementos(elementos);
+          objCoinciden = [];
         }
-        conservaElemento = verElemento;
-      }
-      conservaElemento = "";
-    }
-  //},1000);
+      });
+    };
+  };
 };
 
-//función para retirar duplicados obtenida de forma externa
+/*
+=====================================
+Función para retirar duplicados obtenida de forma externa.
+La nueva matríz depende de la existente, por lo que si se limpia la principal, la "unique" también pierde sus elementos.
+=====================================
+*/
 Array.prototype.unique=function(a){
   return function(){return this.filter(a)}}(function(a,b,c){return c.indexOf(a,b+1)<0
 });
 
-function seleccionar(){
-  var objDestino = "";
-  var strSelector = "";
-  //setTimeout(function(){
-    if (objCoinciden.length > 0){
-      //retira duplicados y ordena descendente
-      objCoinciden.sort();
-      objCoinciden.reverse();
-      aryCoincideSin = objCoinciden.unique();
-      for (var k = 0; k < aryCoincideSin.length; k++ ){
-        strSelector = aryCoincideSin.slice(k,(k+1)).toString();
-        i = parseInt(strSelector.slice(0,1));
-        j = parseInt(strSelector.slice(1));
-        objDestino = 'div.col-' + (i+1).toString() + ' > img:nth-last-child(' + (j+1).toString() +')';
-        $(objDestino)
-          .effect("pulsate",2000);
-      }
-    }
-  //},1000);
-};
-
-function retirar(){
-  //setTimeout(function(){
-    if (aryCoincideSin.length > 0){
-      for (var k = 0; k < aryCoincideSin.length; k++ ){
-        strSelector = aryCoincideSin.slice(k,(k+1)).toString();
-        i = parseInt(strSelector.slice(0,1));
-        j = parseInt(strSelector.slice(1));
-        elementos[i].splice(j,1);
-        objDestino = 'div.col-' + (i+1).toString() + ' > img:nth-last-child(' + (j+1).toString() +')';
-        $(objDestino)
-          .detach();
-      }
-      cntElementos = contarElementos(elementos);
-      objCoinciden = [];
-      aryCoincideSin = [];
-    }
-  //},2000);
-};
-
 function contarElementos(aryXevaluar){
-  var contador = 0;
-  for (var k = 0; k < 7; k++){
+  let contador = 0;
+  for (let k = 0; k < 7; k++){
     contador += aryXevaluar[k].length;
   }
   return contador;
 };
 
-function completar(){
-  //setTimeout(function(){
-    if (cntElementos != 49){
-      var classCol = "";
-      var imgDulce = "";
-      var selDulce = "";
-      //var h = 0;
-      for (var i = 0; i < 7; i++){
-        for (var j = 0; j < 7; j++){
-          if (elementos[i].length <= 7){
-            if (typeof elementos[i][j] === "undefined"){
-              elementos[i][j] = agrega();
-              classCol = '.col-' + (i+1).toString();
-              imgDulce = '<img src="' + elementos[i][j] + '" class="elemento"/>';
-              $(imgDulce).prependTo(classCol);
-              selDulce = "div" + classCol + " > img:nth-child(1)";
-              caer(selDulce);
-            }
-          }
-        }
-      }
-    }
-  //},2500);
+function inicia1(){
+  generaTablero();
+  presentaTablero();
+  verificar();
+  //clearTimeout(a1);
 };
 
 function inicia(){
-  //var cntMover = 0;
-  setTimeout(generaTablero,100);
-  setTimeout(presentaTablero,200);
-  setTimeout(evaluar,700);
-  setTimeout(seleccionar,1000);
-  setTimeout(retirar,2000);
-  setTimeout(console.log("Terminó primer ciclo, paso con "+cntElementos+" elementos por completar"),2010);
-  
-  while (cntElementos < 49){
-    setTimeout(repaso,3000);
-    /*window.setTimeout("completar()",2600);
-    window.setTimeout("evaluar()",3300);
-    window.setTimeout("seleccionar()",4300);
-    window.setTimeout("retirar()",5300);
-    window.setTimeout('console.log("Terminó primer ciclo, paso con "+cntElementos+" elementos por completar")',5310);*/
-  };
+  let a1 = setTimeout(generaTablero,100);
+  let a2 = setTimeout(presentaTablero,200);
+  let a3 = setTimeout(verificar,1000);
+  //clearTimeout(a1);
 };
 
-function repaso(){
-  setTimeout(completar,100);
-  setTimeout(evaluar,700);
-  setTimeout(seleccionar,1000);
-  setTimeout(retirar,2000);
-  setTimeout(console.log("Terminó otro ciclo, paso con "+cntElementos+" elementos por completar"),2010);
+function revisionInicial(){
+  let revisa = 0;
+  do {
+    revisa++;
+    verificar();
+    console.log(revisa);
+  }
+  while(repetir)
 };
 
 /*
