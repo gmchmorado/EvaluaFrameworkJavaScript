@@ -16,7 +16,8 @@ let strSelector = "";
 let classCol = "";
 let imgDulce = "";
 let selDulce = "";
-let repetir = true;
+let repetir = false;
+let cntInicio = 0;
 
 //--> Función para designar el 'objeto' aleatorio
 function agrega(){
@@ -110,6 +111,9 @@ function verificar(){
     };
     conservaElemento = "";
   };
+  if (objCoinciden.length != 0){
+    repetir = true;
+  };
   /*
   =====================================
   Selecciona los elementos y separa sus coordenadas en una matríz, les aplica el efecto de pulsar a aquellas que cumplen la condición.
@@ -119,6 +123,7 @@ function verificar(){
   objDestino = "";
   strSelector = "";
   if (objCoinciden.length > 0){
+    repetir = false;
     //retira duplicados y ordena descendente
     objCoinciden.sort();
     objCoinciden.reverse();
@@ -177,6 +182,11 @@ Array.prototype.unique=function(a){
   return function(){return this.filter(a)}}(function(a,b,c){return c.indexOf(a,b+1)<0
 });
 
+/*
+=====================================
+Función obtener la cantidad de elementos que cumplen con la condición
+=====================================
+*/
 function contarElementos(aryXevaluar){
   let contador = 0;
   for (let k = 0; k < 7; k++){
@@ -185,41 +195,52 @@ function contarElementos(aryXevaluar){
   return contador;
 };
 
-function inicia1(){
-  generaTablero();
-  presentaTablero();
-  verificar();
-  //clearTimeout(a1);
-};
-
-function inicia(){
-  let a1 = setTimeout(generaTablero,100);
-  let a2 = setTimeout(presentaTablero,200);
-  let a3 = setTimeout(verificar,1000);
-  //clearTimeout(a1);
-};
-
-function revisionInicial(){
-  let revisa = 0;
-  do {
-    revisa++;
-    verificar();
-    console.log(revisa);
-  }
-  while(repetir)
+/*
+=====================================
+Función auxiliar para hacer 'callback' de las verificaciones subsecuentes y suspender el 'setInterval' cuando no se tengan más elementos que cumplan con la condición.
+=====================================
+*/
+function aumentar(){
+  cntInicio += 1;
+  if(!repetir){
+    clearInterval(verificar);
+  };
 };
 
 /*
-recorrer la matriz columna/renglon, revisando las coincidencias de renglon (a la derecha) columna (hacia abajo), si hay una primera coincidencia, continúa la evaluación, continuará evaluando hasta que termine o deje de existir coincidencias. Marcará el número de coincidencias si es mayor de tres (2 coincidencias) agregará las posiciones a una variable (array?).
-Una vez revisado todo el tablero, procederá con la "remosión" de los elementos HTML; la caida de los elementos se genera cuando son eliminados; se agregarán los "nuevos" con el apoyo de lo almacenado en la variable (array?)
-!!!Se puede realizar una nueva evaluación ¿Se deberá hacer?  
+=====================================
+Función de inicio realizada por el 'click' al botón. Fue necesario recurrir a los 'callback' anidados.
+=====================================
 */
+function inicia(){
+  do{
+    if (cntInicio == 0){
+      verificar(
+        presentaTablero(
+          generaTablero()
+        )
+      );
+      cntInicio += 1;
+    };
+    aumentar(
+      setInterval(verificar,3000)
+    )
+  }
+  while(repetir);
+};
+
+/*
+=====================================
+Llamada para el botón de inicio
+=====================================
+*/
+$("button").click(inicia);
+
+
 
 /*
 LÓGICA DEL PROCESO
-El tablero cuenta con (7,7) casillas que se pueden ordenar en una matriz
-El llenado de las casillas se realizará con una función de selección aleatoria para cada casilla que se encuentre vacia.
-Por logica, al inicio del juego TODO el tablero estará vacio por lo cual se realizará el llenado de todo el mismo.
+
 Una vez realizado el primer llenado y al iniciar el juego (inicio del croncómetro del tiempo límite) se realizará la primera evaluación de conincidencias.
 Cada cambio en el tablero deberá efectuar la evaluación de coincidencias.
 Todos los 'objetos' que corresponan a las imágenes de los dulces, SERÁN "dragables" y "dropables" en el tablero contenedor.
