@@ -18,6 +18,7 @@ let imgDulce = "";
 let selDulce = "";
 let repetir = false;
 let cntInicio = 0;
+let numPuntosAcum = 0;
 
 //--> Función para designar el 'objeto' aleatorio
 function agrega(){
@@ -56,9 +57,9 @@ function presentaTablero(){
   for (i = 0; i < 7; i++){
     classCol = '.col-' + (i+1).toString();
     for (j = 0; j < 7; j++){
-      imgDulce = '<img src="' + elementos[i][j] + '" class="elemento"/>';
+      imgDulce = '<div "class="elemento fila-"' + (j+1).toString() + '><img src="' + elementos[i][j] + '"/></div>';
       $(imgDulce).prependTo(classCol);
-      selDulce = "div" + classCol + " > img:nth-child(1)";
+      selDulce = "div" + classCol + " > div:nth-child(1)";
       caer(selDulce);
     }
   }
@@ -155,7 +156,7 @@ function verificar(){
                   if (typeof elementos[i][j] === "undefined"){
                     elementos[i][j] = agrega();
                     classCol = '.col-' + (i+1).toString();
-                    imgDulce = '<img src="' + elementos[i][j] + '" class="elemento"/>';
+                    imgDulce = '<img src="' + elementos[i][j] + '" class="elemento" name="' + j.toString() + '"/>';
                     $(imgDulce).prependTo(classCol);
                     selDulce = "div" + classCol + " > img:nth-child(1)";
                     caer(selDulce);
@@ -164,6 +165,8 @@ function verificar(){
               };
             };
           };
+          numPuntosAcum += objCoinciden.length;
+          $("#score-text").text(numPuntosAcum);
           cntElementos = contarElementos(elementos);
           objCoinciden = [];
         }
@@ -234,9 +237,77 @@ function inicia(){
 Llamada para el botón de inicio
 =====================================
 */
-$("button").click(inicia);
 
+$(".btn-reinicio").click(inicia);
+$(document).ready(jugar);
 
+//TEMPORAL PARA REVISAR LAS COORDENADAS
+$(".panel-tablero").on("click","img",function() {
+  let itemp = parseInt(($(this).parent().attr("class")).slice(-1)) - 1;
+  console.log("itemp = ",itemp);
+  let jtemp = parseInt($(this).attr("name"));
+  console.log("jtemp = ",jtemp);
+});
+
+function prueba(){
+  objDestino = 'div.col-' + (i+1).toString() + ' > img:nth-last-child(' + (j+1).toString() +')';
+  console.log(objDestino);
+};
+
+function jugar(){
+  prueba(//depositoValido(
+    identificar()
+  );
+};
+
+function identificar(){
+  $(".panel-tablero").on("mousedown","img",function() {
+    i = parseInt(($(this).parent().attr("class")).slice(-1)) - 1;
+    console.log("i = ",i);
+    j = parseInt($(this).attr("name"));
+    console.log("j = ",j);
+  });
+};
+
+function intercambia (imgDestino) {
+  return this.each(function() {
+      let imgCopiaDestino = $(imgDestino).clone();
+      let imgCopiaFuente = $(this).clone();
+      $(imgDestino).replaceWith(imgCopiaFuente);
+      $(this).replaceWith(imgCopiaDestino);
+  });
+};
+
+function depositoValido(){
+  objDestino = 'div.col-' + (i+1).toString() + ' > img:nth-last-child(' + (j+1).toString() +')';
+  let strValidaIzq = "";
+  let strValidaDer = "";
+  let strValidaInf = "";
+  let strValidaSup = "";
+  const optDraggable = {revert: true};
+  $(objDestino).draggable(optDraggable);
+  //Selector de la izquierda
+  if (i > 0){
+    strValidaIzq = 'div.col-' + (i).toString() + ' > img:nth-last-child(' + (j+1).toString() +')';
+    $(strValidaIzq).droppable({
+      drop: function(event, ui) {
+      setTimeout(function(){
+          $(objDestino).intercambia($(strValidaIzq));
+          $("img").draggable(optDraggable);
+      }, 600);
+      }
+    });
+  };
+  if (i < 6){
+    strValidaDer = 'div.col-' + (i+2).toString() + ' > img:nth-last-child(' + (j+1).toString() +')';
+  };
+  if (j > 0){
+    strValidaInf = 'div.col-' + (i+1).toString() + ' > img:nth-last-child(' + (j).toString() +')';
+  };
+  if (j < 6){
+    strValidaInf = 'div.col-' + (i+1).toString() + ' > img:nth-last-child(' + (j+2).toString() +')';
+  };
+};
 
 /*
 LÓGICA DEL PROCESO

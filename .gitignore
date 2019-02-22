@@ -1,4 +1,8 @@
 js/jquery.timer.js
 css/jquery-ui.min.css
+css/jquery-ui.css
+css/jquery-ui.structure.min.css
+css/jquery-ui.theme.min.css
 js/jquery-3.3.1.min.js
 js/jquery-ui.min.js
+package.json
